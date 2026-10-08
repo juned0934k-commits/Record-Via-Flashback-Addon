@@ -1,0 +1,27 @@
+{
+	"schemaVersion": 1,
+	"id": "rvf",
+	"version": "${version}",
+	"name": "Record Via Flashback",
+	"description": "RVF: adds inventory, perspective, potion effects, spyglass and chat-typing recording to Flashback replays",
+	"authors": [
+		"VALLENN",
+		"JuneFizz"
+	],
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.rvf.RVF"
+		]
+	},
+	"mixins": [
+		"rvf.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.10",
+		"minecraft": ">=1.21.11",
+		"java": ">=21",
+		"fabric-api": "*",
+		"flashback": "*"
+	}
+}

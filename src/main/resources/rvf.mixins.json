@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.rvf.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "MixinAbstractContainerScreenAccessor",
+    "MixinClientPacketListenerTotem",
+    "MixinGameRendererSpyglass",
+    "MixinGuiAddon",
+    "MixinGuiEffects",
+    "MixinGuiSpyglass",
+    "MixinRecorder",
+    "MixinVisualsWindow"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

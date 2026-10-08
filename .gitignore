@@ -1,0 +1,12 @@
+.gradle/
+build/
+out/
+run/
+.idea/
+.vscode/
+*.iml
+bin/
+hs_err_*.log
+
+# Flashback's jar must never be committed (its license forbids redistribution)
+libs/
