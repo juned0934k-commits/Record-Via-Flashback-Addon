@@ -3,6 +3,7 @@
 	"id": "rvf",
 	"version": "${version}",
 	"name": "Record Via Flashback",
+	"icon": "assets/rvf/rvf-icon-512.png",
 	"description": "RVF: adds inventory, perspective, potion effects, spyglass and chat-typing recording to Flashback replays",
 	"authors": [
 		"VALLENN",
