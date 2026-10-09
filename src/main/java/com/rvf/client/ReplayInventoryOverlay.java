@@ -161,6 +161,12 @@ public final class ReplayInventoryOverlay {
             g.renderItemDecorations(minecraft.font, carried, (int) mx - 8, (int) my - 8);
         }
         drawCursor(g, mx, my);
+        // Item tooltip for the hovered slot, like vanilla (hidden while an item is held on the cursor)
+        if (hovered != null && carried.isEmpty() && !hovered.item().isEmpty()) {
+            g.setTooltipForNextFrame(minecraft.font, hovered.item(), (int) mx, (int) my);
+            // A replay has no open screen to draw queued tooltips, so draw it now
+            g.renderDeferredElements();
+        }
     }
 
     private static boolean isPlayerInventory(InventoryScreenState s) {
