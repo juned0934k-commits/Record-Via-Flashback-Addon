@@ -1,18 +1,27 @@
 package com.rvf;
 
 import com.rvf.action.ActionCameraType;
+import com.rvf.action.ActionChatSuggestions;
 import com.rvf.action.ActionChatTyping;
+import com.rvf.action.ActionCreativeScreen;
 import com.rvf.action.ActionEffects;
+import com.rvf.action.ActionInventoryExtras;
 import com.rvf.action.ActionInventoryScreen;
 import com.rvf.action.ActionSpyglass;
+import com.rvf.client.ReplayChatSuggestions;
 import com.rvf.client.ReplayChatTyping;
+import com.rvf.client.ReplayCreativeScreen;
 import com.rvf.client.ReplayEffects;
+import com.rvf.client.ReplayInventoryExtras;
 import com.rvf.client.ReplayInventoryOverlay;
 import com.rvf.client.ReplayPerspective;
 import com.rvf.client.ReplaySpyglass;
 import com.rvf.packet.FlashbackRemoteCameraType;
+import com.rvf.packet.FlashbackRemoteChatSuggestions;
 import com.rvf.packet.FlashbackRemoteChatTyping;
+import com.rvf.packet.FlashbackRemoteCreativeScreen;
 import com.rvf.packet.FlashbackRemoteEffects;
+import com.rvf.packet.FlashbackRemoteInventoryExtras;
 import com.rvf.packet.FlashbackRemoteInventoryScreen;
 import com.rvf.packet.FlashbackRemoteSpyglass;
 import com.moulberry.flashback.Flashback;
@@ -33,22 +42,38 @@ public class RVF implements ClientModInitializer {
 
         // Recorded actions (same names as the original patched Flashback, so old recordings keep working)
         ActionRegistry.register(ActionInventoryScreen.INSTANCE);
+        ActionRegistry.register(ActionInventoryExtras.INSTANCE);
+        ActionRegistry.register(ActionCreativeScreen.INSTANCE);
         ActionRegistry.register(ActionCameraType.INSTANCE);
         ActionRegistry.register(ActionEffects.INSTANCE);
         ActionRegistry.register(ActionSpyglass.INSTANCE);
         ActionRegistry.register(ActionChatTyping.INSTANCE);
+        ActionRegistry.register(ActionChatSuggestions.INSTANCE);
 
         // Server -> replay viewer payloads
         PayloadTypeRegistry.playS2C().register(FlashbackRemoteInventoryScreen.TYPE, FlashbackRemoteInventoryScreen.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(FlashbackRemoteInventoryExtras.TYPE, FlashbackRemoteInventoryExtras.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(FlashbackRemoteCreativeScreen.TYPE, FlashbackRemoteCreativeScreen.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(FlashbackRemoteCameraType.TYPE, FlashbackRemoteCameraType.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(FlashbackRemoteEffects.TYPE, FlashbackRemoteEffects.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(FlashbackRemoteSpyglass.TYPE, FlashbackRemoteSpyglass.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(FlashbackRemoteChatTyping.TYPE, FlashbackRemoteChatTyping.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(FlashbackRemoteChatSuggestions.TYPE, FlashbackRemoteChatSuggestions.STREAM_CODEC);
 
         // Receivers
         ClientPlayNetworking.registerGlobalReceiver(FlashbackRemoteInventoryScreen.TYPE, (payload, context) -> {
             if (Flashback.isInReplay()) {
                 ReplayInventoryOverlay.set(payload.entityId(), payload.state());
+            }
+        });
+        ClientPlayNetworking.registerGlobalReceiver(FlashbackRemoteInventoryExtras.TYPE, (payload, context) -> {
+            if (Flashback.isInReplay()) {
+                ReplayInventoryExtras.set(payload.entityId(), payload.snapshot());
+            }
+        });
+        ClientPlayNetworking.registerGlobalReceiver(FlashbackRemoteCreativeScreen.TYPE, (payload, context) -> {
+            if (Flashback.isInReplay()) {
+                ReplayCreativeScreen.set(payload.entityId(), payload.snapshot());
             }
         });
         ClientPlayNetworking.registerGlobalReceiver(FlashbackRemoteCameraType.TYPE, (payload, context) -> {
@@ -69,6 +94,11 @@ public class RVF implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(FlashbackRemoteChatTyping.TYPE, (payload, context) -> {
             if (Flashback.isInReplay()) {
                 ReplayChatTyping.set(payload.entityId(), payload.open(), payload.text(), payload.cursor());
+            }
+        });
+        ClientPlayNetworking.registerGlobalReceiver(FlashbackRemoteChatSuggestions.TYPE, (payload, context) -> {
+            if (Flashback.isInReplay()) {
+                ReplayChatSuggestions.set(payload.entityId(), payload.snapshot());
             }
         });
 

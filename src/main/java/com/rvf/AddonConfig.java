@@ -11,6 +11,9 @@ import java.nio.file.Path;
 /**
  * Settings, stored in config/rvf.json. Edit the file and restart the game to change them.
  * "record" options decide what is written into new recordings, "show" options decide what is drawn in replays.
+ *
+ * Everything is on by default, because a recording can't be changed afterwards: whatever was off while recording
+ * can never be shown in the replay. Chat typing hides the arguments of slash commands (see ReplayChatTyping.redact).
  */
 public class AddonConfig {
 

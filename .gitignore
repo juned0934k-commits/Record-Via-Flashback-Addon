@@ -10,3 +10,11 @@ hs_err_*.log
 
 # Flashback's jar must never be committed (its license forbids redistribution)
 libs/
+
+/record-via-flashback-*.jar
+/rvf-context.txt
+
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+/rvf-update-*/

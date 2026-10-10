@@ -22,11 +22,18 @@ public final class ReplayChatTyping {
 
     private ReplayChatTyping() {}
 
-    private static final Set<String> SENSITIVE_COMMANDS = Set.of(
-        "login", "l", "log", "register", "reg", "unregister",
-        "changepassword", "changepass", "password", "auth",
-        "authme:login", "authme:register"
+    /**
+     * Commands whose arguments are chat text and are shown as typed (private messages and the like).
+     * Every OTHER slash command has its arguments hidden, so passwords, PINs and 2FA codes are never recorded,
+     * even for commands this list has never heard of.
+     */
+    private static final Set<String> VISIBLE_COMMANDS = Set.of(
+        "msg", "w", "whisper", "tell", "r", "reply",
+        "me", "say", "teammsg", "tm"
     );
+
+    /** Fixed length, so the length of a hidden argument can't be guessed. */
+    private static final String MASK = "********";
 
     private static int entityId = -1;
     private static boolean open = false;
@@ -47,18 +54,31 @@ public final class ReplayChatTyping {
         cursor = 0;
     }
 
-    /** Hides everything after the command for password commands such as /login, so passwords are never recorded. */
+    /**
+     * Applied while recording, before anything is written. Plain chat is returned unchanged.
+     * For a slash command that is not in VISIBLE_COMMANDS, everything after the command word becomes a fixed mask,
+     * for example "/login hunter2" is stored as "/login ********".
+     */
     public static String redact(String input) {
-        if (input.startsWith("/")) {
-            int space = input.indexOf(' ');
-            if (space >= 0) {
-                String command = input.substring(1, space).toLowerCase(Locale.ROOT);
-                if (SENSITIVE_COMMANDS.contains(command)) {
-                    return input.substring(0, space + 1) + "*".repeat(input.length() - space - 1);
-                }
-            }
+        if (!input.startsWith("/")) {
+            return input;
         }
-        return input;
+
+        int space = input.indexOf(' ');
+        if (space < 0 || space + 1 >= input.length()) {
+            return input; // only the command word so far, nothing to hide yet
+        }
+
+        String command = input.substring(1, space).toLowerCase(Locale.ROOT);
+        int colon = command.lastIndexOf(':');
+        if (colon >= 0) {
+            command = command.substring(colon + 1); // "minecraft:msg" counts as "msg"
+        }
+
+        if (VISIBLE_COMMANDS.contains(command)) {
+            return input;
+        }
+        return input.substring(0, space + 1) + MASK;
     }
 
     /** False if switched off in the addon config, or if Flashback's own Visuals "Chat" option is off. */
@@ -119,6 +139,8 @@ public final class ReplayChatTyping {
                 guiGraphics.drawString(font, "_", caretX, height - 12, 0xFFE0E0E0, true);
             }
         }
+
+        ReplayChatSuggestions.render(guiGraphics, font, entityId, text, start);
     }
 
 }

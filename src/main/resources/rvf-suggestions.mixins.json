@@ -1,0 +1,16 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.rvf.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "MixinChatScreenAccessor",
+    "MixinCommandSuggestionsAccessor",
+    "MixinSuggestionsListAccessor",
+    "MixinRecipeBookComponentAccessor",
+    "MixinCreativeModeInventoryScreenAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

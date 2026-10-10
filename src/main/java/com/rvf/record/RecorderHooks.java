@@ -3,12 +3,18 @@ package com.rvf.record;
 import com.rvf.AddonConfig;
 import com.rvf.RVF;
 import com.rvf.action.ActionCameraType;
+import com.rvf.action.ActionChatSuggestions;
 import com.rvf.action.ActionChatTyping;
+import com.rvf.action.ActionCreativeScreen;
 import com.rvf.action.ActionEffects;
+import com.rvf.action.ActionInventoryExtras;
 import com.rvf.action.ActionInventoryScreen;
 import com.rvf.action.ActionSpyglass;
 import com.rvf.client.InventoryScreenState;
+import com.rvf.client.ReplayChatSuggestions;
 import com.rvf.client.ReplayChatTyping;
+import com.rvf.client.ReplayCreativeScreen;
+import com.rvf.client.ReplayInventoryExtras;
 import com.moulberry.flashback.io.AsyncReplaySaver;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
@@ -27,19 +33,25 @@ public final class RecorderHooks {
     private RecorderHooks() {}
 
     private static InventoryScreenState lastInventory = null;
+    private static String lastInventoryExtrasKey = null;
+    private static String lastCreativeKey = null;
     private static int lastCameraType = -1;
     private static String lastEffectsKey = null;
     private static int effectsTick = 0;
     private static int lastSpyglass = -1;
     private static String lastChatKey = null;
+    private static String lastChatSuggestionsKey = null;
     private static boolean errorLogged = false;
 
     public static void reset() {
         lastInventory = null;
+        lastInventoryExtrasKey = null;
+        lastCreativeKey = null;
         lastCameraType = -1;
         lastEffectsKey = null;
         lastSpyglass = -1;
         lastChatKey = null;
+        lastChatSuggestionsKey = null;
     }
 
     public static void tick(AsyncReplaySaver saver) {
@@ -61,6 +73,8 @@ public final class RecorderHooks {
         try {
             if (config.recordInventory) {
                 writeInventoryScreen(saver, minecraft, player, force);
+                writeInventoryExtras(saver, minecraft, force);
+                writeCreativeScreen(saver, minecraft, force);
             }
             if (config.recordPerspective) {
                 writeCameraType(saver, minecraft, force);
@@ -73,6 +87,7 @@ public final class RecorderHooks {
             }
             if (config.recordChatTyping) {
                 writeChatTyping(saver, minecraft, force);
+                writeChatSuggestions(saver, minecraft, force);
             }
         } catch (RuntimeException e) {
             if (!errorLogged) {
@@ -94,6 +109,38 @@ public final class RecorderHooks {
             writer.startAction(ActionInventoryScreen.INSTANCE);
             state.encode(writer.friendlyByteBuf());
             writer.finishAction(ActionInventoryScreen.INSTANCE);
+        });
+    }
+
+    /** Records extras of the open inventory screen (the recipe book). */
+    private static void writeInventoryExtras(AsyncReplaySaver saver, Minecraft minecraft, boolean force) {
+        ReplayInventoryExtras.Snapshot snapshot = ReplayInventoryExtras.captureCurrent(minecraft);
+        String key = snapshot.key();
+        if (!force && key.equals(lastInventoryExtrasKey)) {
+            return;
+        }
+        lastInventoryExtrasKey = key;
+
+        saver.submit(writer -> {
+            writer.startAction(ActionInventoryExtras.INSTANCE);
+            ReplayInventoryExtras.encode(writer.friendlyByteBuf(), snapshot);
+            writer.finishAction(ActionInventoryExtras.INSTANCE);
+        });
+    }
+
+    /** Records the tabs, background, scroll bar and search text of the creative inventory. */
+    private static void writeCreativeScreen(AsyncReplaySaver saver, Minecraft minecraft, boolean force) {
+        ReplayCreativeScreen.Snapshot snapshot = ReplayCreativeScreen.captureCurrent(minecraft);
+        String key = snapshot.key();
+        if (!force && key.equals(lastCreativeKey)) {
+            return;
+        }
+        lastCreativeKey = key;
+
+        saver.submit(writer -> {
+            writer.startAction(ActionCreativeScreen.INSTANCE);
+            ReplayCreativeScreen.encode(writer.friendlyByteBuf(), snapshot);
+            writer.finishAction(ActionCreativeScreen.INSTANCE);
         });
     }
 
@@ -154,7 +201,10 @@ public final class RecorderHooks {
         });
     }
 
-    /** Records whether the chat input is open and what has been typed so far (password commands are hidden). */
+    /**
+     * Records whether the chat input is open and what has been typed so far.
+     * Slash commands are hidden before they are written, except messaging commands such as /msg (see ReplayChatTyping.redact).
+     */
     private static void writeChatTyping(AsyncReplaySaver saver, Minecraft minecraft, boolean force) {
         boolean chatOpen = minecraft.screen instanceof ChatScreen;
         String typed = "";
@@ -162,8 +212,10 @@ public final class RecorderHooks {
         if (chatOpen) {
             for (GuiEventListener child : minecraft.screen.children()) {
                 if (child instanceof EditBox box) {
-                    typed = ReplayChatTyping.redact(box.getValue());
-                    typedCursor = Math.min(box.getCursorPosition(), typed.length());
+                    String rawTyped = box.getValue();
+                    typed = ReplayChatTyping.redact(rawTyped);
+                    // When text is hidden the cursor goes to the end, so its position can't reveal the length
+                    typedCursor = typed.equals(rawTyped) ? Math.min(box.getCursorPosition(), typed.length()) : typed.length();
                     break;
                 }
             }
@@ -186,6 +238,22 @@ public final class RecorderHooks {
                 writer.friendlyByteBuf().writeVarInt(writeCursor);
             }
             writer.finishAction(ActionChatTyping.INSTANCE);
+        });
+    }
+
+    /** Records the suggestions popup shown while typing in chat. Nothing is recorded while any part of the text is hidden. */
+    private static void writeChatSuggestions(AsyncReplaySaver saver, Minecraft minecraft, boolean force) {
+        ReplayChatSuggestions.Snapshot snapshot = ReplayChatSuggestions.captureCurrent(minecraft);
+        String key = snapshot.key();
+        if (!force && key.equals(lastChatSuggestionsKey)) {
+            return;
+        }
+        lastChatSuggestionsKey = key;
+
+        saver.submit(writer -> {
+            writer.startAction(ActionChatSuggestions.INSTANCE);
+            ReplayChatSuggestions.encode(writer.friendlyByteBuf(), snapshot);
+            writer.finishAction(ActionChatSuggestions.INSTANCE);
         });
     }
 

@@ -84,8 +84,11 @@ public final class ReplayInventoryOverlay {
         int guiW = minecraft.getWindow().getGuiScaledWidth();
         int guiH = minecraft.getWindow().getGuiScaledHeight();
 
-        // Same placement vanilla uses for container screens
-        int left = (guiW - s.imageWidth()) / 2;
+        // Same placement vanilla uses for container screens (shifted sideways while the recipe book is open)
+        ReplayInventoryExtras.Snapshot extras = ReplayInventoryExtras.getFor(entityId);
+        ReplayCreativeScreen.Snapshot creative = ReplayCreativeScreen.getFor(entityId);
+        boolean isCreative = creative.open();
+        int left = ReplayInventoryExtras.panelLeft(guiW, s.imageWidth(), extras);
         int top = (guiH - s.imageHeight()) / 2;
 
         // Cursor position, interpolated between the last two recorded samples
@@ -97,15 +100,20 @@ public final class ReplayInventoryOverlay {
         g.fillGradient(0, 0, guiW, guiH, -1072689136, -804253680);
 
         // Background: real vanilla texture when we know the container, generic panel otherwise
-        boolean textured = drawVanillaBackground(g, s, left, top);
-        if (!textured) {
+        // The creative inventory draws its own tabs, background and scroll bar
+        boolean textured = isCreative || drawVanillaBackground(g, s, left, top);
+        if (isCreative) {
+            ReplayCreativeScreen.renderBackground(g, minecraft, left, top, s.imageWidth(), s.imageHeight(), creative, mx, my);
+        } else if (!textured) {
             drawPanel(g, left, top, s.imageWidth(), s.imageHeight());
         }
 
-        boolean playerInv = isPlayerInventory(s);
-        g.drawString(minecraft.font, s.title(), playerInv ? left + 97 : left + 8, playerInv ? top + 8 : top + 6, LABEL_COLOR, false);
-        if (textured && !playerInv) {
-            g.drawString(minecraft.font, Component.translatable("container.inventory"), left + 8, top + s.imageHeight() - 94, LABEL_COLOR, false);
+        boolean playerInv = !isCreative && isPlayerInventory(s);
+        if (!isCreative) {
+            g.drawString(minecraft.font, s.title(), playerInv ? left + 97 : left + 8, playerInv ? top + 8 : top + 6, LABEL_COLOR, false);
+            if (textured && !playerInv) {
+                g.drawString(minecraft.font, Component.translatable("container.inventory"), left + 8, top + s.imageHeight() - 94, LABEL_COLOR, false);
+            }
         }
 
         // Player model in the preview box; it turns to look at the ghost cursor like vanilla does
@@ -153,6 +161,9 @@ public final class ReplayInventoryOverlay {
             int hy = top + hovered.y();
             g.fill(hx, hy, hx + 16, hy + 16, 0x80FFFFFF);
         }
+
+        // The recipe book panel (when it was open), drawn over the inventory like vanilla does on narrow windows
+        ReplayInventoryExtras.renderRecipeBook(g, minecraft, guiW, guiH, extras);
 
         // Item held on the cursor, then the cursor itself on top
         ItemStack carried = s.carried();
