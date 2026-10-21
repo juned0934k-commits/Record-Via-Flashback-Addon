@@ -3,7 +3,7 @@ package com.rvf.client;
 import com.rvf.RVF;
 import com.rvf.mixin.MixinCreativeModeInventoryScreenAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -75,7 +75,7 @@ public final class ReplayCreativeScreen {
     }
 
     private static Snapshot capture(Minecraft minecraft) {
-        if (!(minecraft.screen instanceof CreativeModeInventoryScreen screen)) {
+        if (!(minecraft.gui.screen() instanceof CreativeModeInventoryScreen screen)) {
             return Snapshot.EMPTY;
         }
 
@@ -186,18 +186,18 @@ public final class ReplayCreativeScreen {
             + "_" + (selected ? "selected" : "unselected") + "_" + number);
     }
 
-    private static void drawTab(GuiGraphics g, int left, int top, int imageHeight, Tab tab) {
+    private static void drawTab(GuiGraphicsExtractor g, int left, int top, int imageHeight, Tab tab) {
         int x = left + tab.x();
         int y = top + (tab.top() ? -28 : imageHeight - 4);
         g.blitSprite(RenderPipelines.GUI_TEXTURED, tabSprite(tab.top(), tab.selected(), tab.column()), x, y, 26, 32);
-        g.renderItem(tab.icon(), x + 5, y + (tab.top() ? 9 : 7));
+        g.item(tab.icon(), x + 5, y + (tab.top() ? 9 : 7));
     }
 
     /**
      * Draws everything of the creative screen except the slots: tabs, the background of the selected tab,
      * the scroll bar, the tab title, the search text and (on the survival inventory tab) the player model.
      */
-    public static void renderBackground(GuiGraphics g, Minecraft minecraft, int left, int top, int imageWidth, int imageHeight,
+    public static void renderBackground(GuiGraphicsExtractor g, Minecraft minecraft, int left, int top, int imageWidth, int imageHeight,
                                         Snapshot s, float mouseX, float mouseY) {
         // Unselected tabs first, so the panel covers their inner edge; the selected tab goes on top of it
         for (Tab tab : s.tabs()) {
@@ -220,14 +220,14 @@ public final class ReplayCreativeScreen {
         }
 
         if (s.showTitle()) {
-            g.drawString(minecraft.font, s.title(), left + 8, top + 6, LABEL_COLOR, false);
+            g.text(minecraft.font, s.title(), left + 8, top + 6, LABEL_COLOR, false);
         }
         if (s.searchVisible()) {
-            g.drawString(minecraft.font, minecraft.font.plainSubstrByWidth(s.search(), 78), left + 82, top + 6, 0xFFFFFFFF, false);
+            g.text(minecraft.font, minecraft.font.plainSubstrByWidth(s.search(), 78), left + 82, top + 6, 0xFFFFFFFF, false);
         }
 
         if (s.inventoryTab() && minecraft.getCameraEntity() instanceof LivingEntity living) {
-            InventoryScreen.renderEntityInInventoryFollowsMouse(g, left + 73, top + 6, left + 105, top + 49,
+            InventoryScreen.extractEntityInInventoryFollowsMouse(g, left + 73, top + 6, left + 105, top + 49,
                 20, 0.0625F, mouseX, mouseY, living);
         }
     }

@@ -3,7 +3,7 @@ package com.rvf.client;
 import com.rvf.AddonConfig;
 import com.moulberry.flashback.Flashback;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -76,7 +76,7 @@ public final class ReplayInventoryOverlay {
         return camera != null && camera.getId() == entityId;
     }
 
-    public static void render(GuiGraphics g) {
+    public static void render(GuiGraphicsExtractor g) {
         Minecraft minecraft = Minecraft.getInstance();
         if (!shouldRender(minecraft)) return;
 
@@ -110,15 +110,15 @@ public final class ReplayInventoryOverlay {
 
         boolean playerInv = !isCreative && isPlayerInventory(s);
         if (!isCreative) {
-            g.drawString(minecraft.font, s.title(), playerInv ? left + 97 : left + 8, playerInv ? top + 8 : top + 6, LABEL_COLOR, false);
+            g.text(minecraft.font, s.title(), playerInv ? left + 97 : left + 8, playerInv ? top + 8 : top + 6, LABEL_COLOR, false);
             if (textured && !playerInv) {
-                g.drawString(minecraft.font, Component.translatable("container.inventory"), left + 8, top + s.imageHeight() - 94, LABEL_COLOR, false);
+                g.text(minecraft.font, Component.translatable("container.inventory"), left + 8, top + s.imageHeight() - 94, LABEL_COLOR, false);
             }
         }
 
         // Player model in the preview box; it turns to look at the ghost cursor like vanilla does
         if (playerInv && textured && minecraft.getCameraEntity() instanceof LivingEntity living) {
-            InventoryScreen.renderEntityInInventoryFollowsMouse(g, left + 26, top + 8, left + 75, top + 78,
+            InventoryScreen.extractEntityInInventoryFollowsMouse(g, left + 26, top + 8, left + 75, top + 78,
                 30, 0.0625F, mx, my, living);
         }
 
@@ -130,7 +130,7 @@ public final class ReplayInventoryOverlay {
         }
 
         // Outlines in empty armor slots and the empty offhand slot, like vanilla
-        if (playerInv && textured) {
+        if ((playerInv && textured) || (isCreative && creative.inventoryTab())) {
             for (int i = 0; i < EMPTY_ARMOR_ICONS.length; i++) {
                 int index = 5 + i;
                 if (index < s.slots().size() && s.slots().get(index).item().isEmpty()) {
@@ -149,8 +149,8 @@ public final class ReplayInventoryOverlay {
             int sx = left + slot.x();
             int sy = top + slot.y();
             if (!slot.item().isEmpty()) {
-                g.renderItem(slot.item(), sx, sy);
-                g.renderItemDecorations(minecraft.font, slot.item(), sx, sy);
+                g.item(slot.item(), sx, sy);
+                g.itemDecorations(minecraft.font, slot.item(), sx, sy);
             }
             if (mx >= sx && mx < sx + 16 && my >= sy && my < sy + 16) {
                 hovered = slot;
@@ -168,15 +168,15 @@ public final class ReplayInventoryOverlay {
         // Item held on the cursor, then the cursor itself on top
         ItemStack carried = s.carried();
         if (!carried.isEmpty()) {
-            g.renderItem(carried, (int) mx - 8, (int) my - 8);
-            g.renderItemDecorations(minecraft.font, carried, (int) mx - 8, (int) my - 8);
+            g.item(carried, (int) mx - 8, (int) my - 8);
+            g.itemDecorations(minecraft.font, carried, (int) mx - 8, (int) my - 8);
         }
         drawCursor(g, mx, my);
         // Item tooltip for the hovered slot, like vanilla (hidden while an item is held on the cursor)
         if (hovered != null && carried.isEmpty() && !hovered.item().isEmpty()) {
             g.setTooltipForNextFrame(minecraft.font, hovered.item(), (int) mx, (int) my);
             // A replay has no open screen to draw queued tooltips, so draw it now
-            g.renderDeferredElements();
+            g.extractDeferredElements(0, 0, 0.0f);
         }
     }
 
@@ -186,7 +186,7 @@ public final class ReplayInventoryOverlay {
     }
 
     /** Draws the vanilla texture for this container if we know it. Returns false for unknown/modded screens. */
-    private static boolean drawVanillaBackground(GuiGraphics g, InventoryScreenState s, int left, int top) {
+    private static boolean drawVanillaBackground(GuiGraphicsExtractor g, InventoryScreenState s, int left, int top) {
         Identifier type = s.menuType();
         if (type == null) {
             if (isPlayerInventory(s)) {
@@ -208,7 +208,7 @@ public final class ReplayInventoryOverlay {
     }
 
     /** Vanilla-style grey panel with bevel. */
-    private static void drawPanel(GuiGraphics g, int x, int y, int w, int h) {
+    private static void drawPanel(GuiGraphicsExtractor g, int x, int y, int w, int h) {
         g.fill(x, y, x + w, y + h, 0xFF000000);                         // outline
         g.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0xFFC6C6C6);         // body
         g.fill(x + 1, y + 1, x + w - 2, y + 3, 0xFFFFFFFF);             // top highlight
@@ -218,7 +218,7 @@ public final class ReplayInventoryOverlay {
     }
 
     /** 18x18 recessed slot. (x, y) is the top-left of the 18x18 area, i.e. slot origin - 1. */
-    private static void drawSlotBackground(GuiGraphics g, int x, int y) {
+    private static void drawSlotBackground(GuiGraphicsExtractor g, int x, int y) {
         g.fill(x, y, x + 18, y + 18, 0xFF8B8B8B);
         g.fill(x, y, x + 17, y + 1, 0xFF373737);
         g.fill(x, y, x + 1, y + 17, 0xFF373737);
@@ -227,7 +227,7 @@ public final class ReplayInventoryOverlay {
     }
 
     /** Draws the cursor texture; the arrow's tip is the top-left pixel, so (x, y) is the hotspot. */
-    private static void drawCursor(GuiGraphics g, float x, float y) {
+    private static void drawCursor(GuiGraphicsExtractor g, float x, float y) {
         // Draw at real screen-pixel size (12x19) like the system pointer, whatever the GUI scale is
         float guiScale = (float) Minecraft.getInstance().getWindow().getGuiScale();
         float px = Math.round(x * guiScale) / guiScale;

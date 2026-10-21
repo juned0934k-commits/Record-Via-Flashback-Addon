@@ -30,8 +30,13 @@ public final class ReplayPerspective {
         }
 
         CameraType[] types = CameraType.values();
-        if (recorded < types.length) {
-            minecraft.options.setCameraType(types[recorded]);
+        if (recorded >= types.length) return;
+
+        // Only touch the camera when it really differs. Setting it again and again every time the same
+        // value arrives made the view flicker through the perspectives on 26.2.
+        CameraType wanted = types[recorded];
+        if (minecraft.options.getCameraType() != wanted) {
+            minecraft.options.setCameraType(wanted);
         }
     }
 

@@ -41,7 +41,7 @@ public record InventoryScreenState(boolean open, @Nullable Identifier menuType, 
 
     /** Captures the current state on the client thread. All item stacks are copied. */
     public static InventoryScreenState capture(Minecraft minecraft, LocalPlayer player) {
-        if (!(minecraft.screen instanceof AbstractContainerScreen<?> screen)) {
+        if (!(minecraft.gui.screen() instanceof AbstractContainerScreen<?> screen)) {
             return CLOSED;
         }
 

@@ -4,7 +4,7 @@ import com.rvf.RVF;
 import com.rvf.mixin.MixinRecipeBookComponentAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -55,7 +55,7 @@ public final class ReplayInventoryExtras {
     }
 
     private static Snapshot capture(Minecraft minecraft) {
-        if (!(minecraft.screen instanceof AbstractContainerScreen<?> screen)) {
+        if (!(minecraft.gui.screen() instanceof AbstractContainerScreen<?> screen)) {
             return Snapshot.EMPTY;
         }
 
@@ -134,7 +134,7 @@ public final class ReplayInventoryExtras {
     private static final Identifier FILTER_SPRITE = Identifier.withDefaultNamespace("recipe_book/filter_disabled");
 
     /** Draws the recipe book panel next to the inventory: background, search field, filter button and the search tab. */
-    public static void renderRecipeBook(GuiGraphics g, Minecraft minecraft, int guiWidth, int guiHeight, Snapshot extras) {
+    public static void renderRecipeBook(GuiGraphicsExtractor g, Minecraft minecraft, int guiWidth, int guiHeight, Snapshot extras) {
         if (!extras.bookOpen()) {
             return;
         }
@@ -154,9 +154,9 @@ public final class ReplayInventoryExtras {
         g.fill(fieldX, fieldY, fieldX + fieldW, fieldY + fieldH, 0xFFA0A0A0);
         g.fill(fieldX + 1, fieldY + 1, fieldX + fieldW - 1, fieldY + fieldH - 1, 0xFF000000);
         if (extras.bookSearch().isEmpty()) {
-            g.drawString(font, Component.translatable("gui.recipebook.search_hint"), fieldX + 4, fieldY + 3, 0xFF808080, false);
+            g.text(font, Component.translatable("gui.recipebook.search_hint"), fieldX + 4, fieldY + 3, 0xFF808080, false);
         } else {
-            g.drawString(font, font.plainSubstrByWidth(extras.bookSearch(), fieldW - 8), fieldX + 4, fieldY + 3, 0xFFE0E0E0, false);
+            g.text(font, font.plainSubstrByWidth(extras.bookSearch(), fieldW - 8), fieldX + 4, fieldY + 3, 0xFFE0E0E0, false);
         }
 
         // Filter button ("craftable only"), shown in its default state
@@ -164,7 +164,7 @@ public final class ReplayInventoryExtras {
 
         // The search tab, selected, with the compass icon vanilla uses for it
         g.blitSprite(RenderPipelines.GUI_TEXTURED, TAB_SELECTED_SPRITE, x - 32, y + 3, 35, 27);
-        g.renderItem(new ItemStack(Items.COMPASS), x - 23, y + 8);
+        g.item(new ItemStack(Items.COMPASS), x - 23, y + 8);
     }
 
 }

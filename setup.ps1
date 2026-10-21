@@ -16,7 +16,7 @@ $ErrorActionPreference = "Stop"
 $here = $PSScriptRoot
 
 if ($FlashbackJar -eq "") {
-    $FlashbackJar = Join-Path $FlashbackProject "build\libs\flashback-0.39.5.jar"
+    $FlashbackJar = "D:\RVF 26.2\Flashback-0.43.6-for-MC26.2.jar"
 }
 
 # ---- 1. Gradle wrapper
@@ -35,8 +35,9 @@ if (-not (Test-Path $wrapperSrc)) {
     exit 1
 }
 New-Item -ItemType Directory -Force -Path (Join-Path $here "gradle\wrapper") | Out-Null
-Copy-Item -Force (Join-Path $wrapperSrc "*") (Join-Path $here "gradle\wrapper")
-Write-Host "[ok] copied the Gradle wrapper"
+# only the wrapper jar: this project keeps its own gradle-wrapper.properties (newer Gradle for Minecraft 26.2)
+Copy-Item -Force (Join-Path $wrapperSrc "gradle-wrapper.jar") (Join-Path $here "gradle\wrapper")
+Write-Host "[ok] copied the Gradle wrapper jar"
 
 # ---- 2. Slim Flashback jar
 if (-not (Test-Path $FlashbackJar)) {

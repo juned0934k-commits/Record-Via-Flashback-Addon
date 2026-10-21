@@ -51,14 +51,14 @@ public class RVF implements ClientModInitializer {
         ActionRegistry.register(ActionChatSuggestions.INSTANCE);
 
         // Server -> replay viewer payloads
-        PayloadTypeRegistry.playS2C().register(FlashbackRemoteInventoryScreen.TYPE, FlashbackRemoteInventoryScreen.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(FlashbackRemoteInventoryExtras.TYPE, FlashbackRemoteInventoryExtras.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(FlashbackRemoteCreativeScreen.TYPE, FlashbackRemoteCreativeScreen.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(FlashbackRemoteCameraType.TYPE, FlashbackRemoteCameraType.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(FlashbackRemoteEffects.TYPE, FlashbackRemoteEffects.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(FlashbackRemoteSpyglass.TYPE, FlashbackRemoteSpyglass.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(FlashbackRemoteChatTyping.TYPE, FlashbackRemoteChatTyping.STREAM_CODEC);
-        PayloadTypeRegistry.playS2C().register(FlashbackRemoteChatSuggestions.TYPE, FlashbackRemoteChatSuggestions.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteInventoryScreen.TYPE, FlashbackRemoteInventoryScreen.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteInventoryExtras.TYPE, FlashbackRemoteInventoryExtras.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteCreativeScreen.TYPE, FlashbackRemoteCreativeScreen.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteCameraType.TYPE, FlashbackRemoteCameraType.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteEffects.TYPE, FlashbackRemoteEffects.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteSpyglass.TYPE, FlashbackRemoteSpyglass.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteChatTyping.TYPE, FlashbackRemoteChatTyping.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteChatSuggestions.TYPE, FlashbackRemoteChatSuggestions.STREAM_CODEC);
 
         // Receivers
         ClientPlayNetworking.registerGlobalReceiver(FlashbackRemoteInventoryScreen.TYPE, (payload, context) -> {

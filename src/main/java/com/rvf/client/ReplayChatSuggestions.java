@@ -7,7 +7,7 @@ import com.rvf.mixin.MixinCommandSuggestionsAccessor;
 import com.rvf.mixin.MixinSuggestionsListAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.CommandSuggestions;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -62,7 +62,7 @@ public final class ReplayChatSuggestions {
     }
 
     private static Snapshot capture(Minecraft minecraft) {
-        if (!(minecraft.screen instanceof ChatScreen chatScreen)) {
+        if (!(minecraft.gui.screen() instanceof ChatScreen chatScreen)) {
             return Snapshot.EMPTY;
         }
 
@@ -154,7 +154,7 @@ public final class ReplayChatSuggestions {
     }
 
     /** Draws the popup just above the typing bar, lined up with the word being completed. */
-    public static void render(GuiGraphics guiGraphics, Font font, int chatEntityId, String typedText, int scrollStart) {
+    public static void render(GuiGraphicsExtractor guiGraphics, Font font, int chatEntityId, String typedText, int scrollStart) {
         Snapshot current = snapshot;
         if (current.items().isEmpty() || entityId != chatEntityId) {
             return;
@@ -174,7 +174,7 @@ public final class ReplayChatSuggestions {
         guiGraphics.fill(x - 1, y, x + width + 1, y + rows * 12, 0xD0000000);
         for (int i = 0; i < rows; i++) {
             int color = i == current.selected() ? 0xFFFFFF00 : 0xFFAAAAAA;
-            guiGraphics.drawString(font, current.items().get(i), x, y + 2 + i * 12, color, true);
+            guiGraphics.text(font, current.items().get(i), x, y + 2 + i * 12, color, true);
         }
     }
 

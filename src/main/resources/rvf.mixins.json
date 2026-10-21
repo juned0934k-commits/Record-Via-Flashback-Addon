@@ -2,15 +2,20 @@
   "required": true,
   "minVersion": "0.8",
   "package": "com.rvf.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "client": [
     "MixinAbstractContainerScreenAccessor",
+    "MixinCameraSpyglass",
+    "MixinChatScreenAccessor",
     "MixinClientPacketListenerTotem",
-    "MixinGameRendererSpyglass",
+    "MixinCommandSuggestionsAccessor",
+    "MixinCreativeModeInventoryScreenAccessor",
     "MixinGuiAddon",
     "MixinGuiEffects",
     "MixinGuiSpyglass",
+    "MixinRecipeBookComponentAccessor",
     "MixinRecorder",
+    "MixinSuggestionsListAccessor",
     "MixinVisualsWindow"
   ],
   "injectors": {

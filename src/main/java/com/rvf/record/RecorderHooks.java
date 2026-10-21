@@ -206,11 +206,11 @@ public final class RecorderHooks {
      * Slash commands are hidden before they are written, except messaging commands such as /msg (see ReplayChatTyping.redact).
      */
     private static void writeChatTyping(AsyncReplaySaver saver, Minecraft minecraft, boolean force) {
-        boolean chatOpen = minecraft.screen instanceof ChatScreen;
+        boolean chatOpen = minecraft.gui.screen() instanceof ChatScreen;
         String typed = "";
         int typedCursor = 0;
         if (chatOpen) {
-            for (GuiEventListener child : minecraft.screen.children()) {
+            for (GuiEventListener child : minecraft.gui.screen().children()) {
                 if (child instanceof EditBox box) {
                     String rawTyped = box.getValue();
                     typed = ReplayChatTyping.redact(rawTyped);

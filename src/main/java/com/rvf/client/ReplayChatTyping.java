@@ -7,7 +7,7 @@ import com.moulberry.flashback.state.EditorState;
 import com.moulberry.flashback.state.EditorStateManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.world.entity.Entity;
 
@@ -95,7 +95,7 @@ public final class ReplayChatTyping {
         return true;
     }
 
-    public static void render(GuiGraphics guiGraphics) {
+    public static void render(GuiGraphicsExtractor guiGraphics) {
         if (!open || !Flashback.isInReplay()) {
             return;
         }
@@ -105,7 +105,7 @@ public final class ReplayChatTyping {
         if (camera == null || camera == minecraft.player || camera.getId() != entityId) {
             return;
         }
-        if (minecraft.screen instanceof ChatScreen) {
+        if (minecraft.gui.screen() instanceof ChatScreen) {
             return;
         }
         if (!visible()) {
@@ -130,13 +130,13 @@ public final class ReplayChatTyping {
         String visibleText = font.plainSubstrByWidth(text.substring(start), maxWidth);
         int caretX = 4 + font.width(text.substring(start, cur));
 
-        guiGraphics.drawString(font, visibleText, 4, height - 12, 0xFFE0E0E0, true);
+        guiGraphics.text(font, visibleText, 4, height - 12, 0xFFE0E0E0, true);
 
         if ((System.currentTimeMillis() / 500L) % 2L == 0L) {
             if (cur < text.length()) {
                 guiGraphics.fill(caretX, height - 13, caretX + 1, height - 3, 0xFFE0E0E0);
             } else {
-                guiGraphics.drawString(font, "_", caretX, height - 12, 0xFFE0E0E0, true);
+                guiGraphics.text(font, "_", caretX, height - 12, 0xFFE0E0E0, true);
             }
         }
 
