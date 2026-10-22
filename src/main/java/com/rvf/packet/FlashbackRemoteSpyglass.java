@@ -7,7 +7,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 /** Whether the recorded player is currently looking through a spyglass. */
 public record FlashbackRemoteSpyglass(int entityId, boolean scoping) implements CustomPacketPayload {
-    public static final Type<FlashbackRemoteSpyglass> TYPE = new Type<>(Flashback.createIdentifier("remote_spyglass"));
+    public static final Type<FlashbackRemoteSpyglass> TYPE = new Type<>(Flashback.createResourceLocation("remote_spyglass"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FlashbackRemoteSpyglass> STREAM_CODEC = StreamCodec.of(
         (buf, payload) -> {

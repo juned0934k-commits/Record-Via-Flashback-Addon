@@ -8,7 +8,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 /** Recipe book state (and later other extras) of the inventory screen the recorded player had open. */
 public record FlashbackRemoteInventoryExtras(int entityId, ReplayInventoryExtras.Snapshot snapshot) implements CustomPacketPayload {
-    public static final Type<FlashbackRemoteInventoryExtras> TYPE = new Type<>(Flashback.createIdentifier("remote_inventory_extras"));
+    public static final Type<FlashbackRemoteInventoryExtras> TYPE = new Type<>(Flashback.createResourceLocation("remote_inventory_extras"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FlashbackRemoteInventoryExtras> STREAM_CODEC = StreamCodec.of(
         (buf, payload) -> {

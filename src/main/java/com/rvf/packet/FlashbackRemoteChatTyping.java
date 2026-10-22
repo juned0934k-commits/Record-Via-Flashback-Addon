@@ -7,7 +7,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 /** Whether the recorded player has the chat input open, and what they have typed so far. */
 public record FlashbackRemoteChatTyping(int entityId, boolean open, String text, int cursor) implements CustomPacketPayload {
-    public static final Type<FlashbackRemoteChatTyping> TYPE = new Type<>(Flashback.createIdentifier("remote_chat_typing"));
+    public static final Type<FlashbackRemoteChatTyping> TYPE = new Type<>(Flashback.createResourceLocation("remote_chat_typing"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FlashbackRemoteChatTyping> STREAM_CODEC = StreamCodec.of(
         (buf, payload) -> {

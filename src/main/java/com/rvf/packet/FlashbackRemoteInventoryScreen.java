@@ -7,7 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public record FlashbackRemoteInventoryScreen(int entityId, InventoryScreenState state) implements CustomPacketPayload {
-    public static final Type<FlashbackRemoteInventoryScreen> TYPE = new Type<>(Flashback.createIdentifier("remote_inventory_screen"));
+    public static final Type<FlashbackRemoteInventoryScreen> TYPE = new Type<>(Flashback.createResourceLocation("remote_inventory_screen"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FlashbackRemoteInventoryScreen> STREAM_CODEC = StreamCodec.of(
         (buf, payload) -> {

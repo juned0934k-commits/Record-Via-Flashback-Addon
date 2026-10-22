@@ -12,7 +12,7 @@ import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -128,10 +128,10 @@ public final class ReplayInventoryExtras {
         return (guiWidth - imageWidth) / 2;
     }
 
-    private static final Identifier RECIPE_BOOK_TEX = Identifier.withDefaultNamespace("textures/gui/recipe_book.png");
-    private static final Identifier TAB_SPRITE = Identifier.withDefaultNamespace("recipe_book/tab");
-    private static final Identifier TAB_SELECTED_SPRITE = Identifier.withDefaultNamespace("recipe_book/tab_selected");
-    private static final Identifier FILTER_SPRITE = Identifier.withDefaultNamespace("recipe_book/filter_disabled");
+    private static final ResourceLocation RECIPE_BOOK_TEX = ResourceLocation.withDefaultNamespace("textures/gui/recipe_book.png");
+    private static final ResourceLocation TAB_SPRITE = ResourceLocation.withDefaultNamespace("recipe_book/tab");
+    private static final ResourceLocation TAB_SELECTED_SPRITE = ResourceLocation.withDefaultNamespace("recipe_book/tab_selected");
+    private static final ResourceLocation FILTER_SPRITE = ResourceLocation.withDefaultNamespace("recipe_book/filter_disabled");
 
     /** Draws the recipe book panel next to the inventory: background, search field, filter button and the search tab. */
     public static void renderRecipeBook(GuiGraphics g, Minecraft minecraft, int guiWidth, int guiHeight, Snapshot extras) {

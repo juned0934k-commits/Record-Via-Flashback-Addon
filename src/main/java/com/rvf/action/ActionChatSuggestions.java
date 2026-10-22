@@ -8,17 +8,17 @@ import com.rvf.client.ReplayChatSuggestions;
 import com.rvf.packet.FlashbackRemoteChatSuggestions;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class ActionChatSuggestions implements Action {
 
-    private static final Identifier NAME = Flashback.createIdentifier("action/chat_suggestions");
+    private static final ResourceLocation NAME = Flashback.createResourceLocation("action/chat_suggestions");
     public static final ActionChatSuggestions INSTANCE = new ActionChatSuggestions();
     private ActionChatSuggestions() {
     }
 
     @Override
-    public Identifier name() {
+    public ResourceLocation name() {
         return NAME;
     }
 

@@ -8,17 +8,17 @@ import com.rvf.client.ReplayInventoryExtras;
 import com.rvf.packet.FlashbackRemoteInventoryExtras;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class ActionInventoryExtras implements Action {
 
-    private static final Identifier NAME = Flashback.createIdentifier("action/inventory_extras");
+    private static final ResourceLocation NAME = Flashback.createResourceLocation("action/inventory_extras");
     public static final ActionInventoryExtras INSTANCE = new ActionInventoryExtras();
     private ActionInventoryExtras() {
     }
 
     @Override
-    public Identifier name() {
+    public ResourceLocation name() {
         return NAME;
     }
 

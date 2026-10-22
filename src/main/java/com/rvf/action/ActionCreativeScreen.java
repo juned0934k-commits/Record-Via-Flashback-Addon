@@ -8,17 +8,17 @@ import com.rvf.client.ReplayCreativeScreen;
 import com.rvf.packet.FlashbackRemoteCreativeScreen;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class ActionCreativeScreen implements Action {
 
-    private static final Identifier NAME = Flashback.createIdentifier("action/creative_screen");
+    private static final ResourceLocation NAME = Flashback.createResourceLocation("action/creative_screen");
     public static final ActionCreativeScreen INSTANCE = new ActionCreativeScreen();
     private ActionCreativeScreen() {
     }
 
     @Override
-    public Identifier name() {
+    public ResourceLocation name() {
         return NAME;
     }
 

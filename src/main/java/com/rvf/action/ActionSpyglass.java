@@ -8,17 +8,17 @@ import com.moulberry.flashback.playback.ReplayPlayer;
 import com.moulberry.flashback.playback.ReplayServer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class ActionSpyglass implements Action {
 
-    private static final Identifier NAME = Flashback.createIdentifier("action/spyglass");
+    private static final ResourceLocation NAME = Flashback.createResourceLocation("action/spyglass");
     public static final ActionSpyglass INSTANCE = new ActionSpyglass();
     private ActionSpyglass() {
     }
 
     @Override
-    public Identifier name() {
+    public ResourceLocation name() {
         return NAME;
     }
 

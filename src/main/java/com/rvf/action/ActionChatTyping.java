@@ -7,17 +7,17 @@ import com.moulberry.flashback.playback.ReplayPlayer;
 import com.moulberry.flashback.playback.ReplayServer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class ActionChatTyping implements Action {
 
-    private static final Identifier NAME = Flashback.createIdentifier("action/chat_typing");
+    private static final ResourceLocation NAME = Flashback.createResourceLocation("action/chat_typing");
     public static final ActionChatTyping INSTANCE = new ActionChatTyping();
     private ActionChatTyping() {
     }
 
     @Override
-    public Identifier name() {
+    public ResourceLocation name() {
         return NAME;
     }
 

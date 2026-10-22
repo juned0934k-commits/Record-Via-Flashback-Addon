@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -34,11 +34,11 @@ public final class ReplayCreativeScreen {
 
     public record Tab(int x, boolean top, int column, boolean selected, ItemStack icon) {}
 
-    public record Snapshot(boolean open, Identifier background, Component title, boolean showTitle,
+    public record Snapshot(boolean open, ResourceLocation background, Component title, boolean showTitle,
                            boolean searchVisible, String search, float scroll, boolean tabScrolls, boolean canScroll,
                            boolean inventoryTab, List<Tab> tabs) {
 
-        public static final Snapshot EMPTY = new Snapshot(false, Identifier.withDefaultNamespace("textures/gui/container/creative_inventory/tab_items.png"),
+        public static final Snapshot EMPTY = new Snapshot(false, ResourceLocation.withDefaultNamespace("textures/gui/container/creative_inventory/tab_items.png"),
             Component.empty(), false, false, "", 0f, false, false, false, List.of());
 
         /** Changes whenever anything visible changes. */
@@ -111,7 +111,7 @@ public final class ReplayCreativeScreen {
         if (!snapshot.open()) {
             return;
         }
-        buf.writeIdentifier(snapshot.background());
+        buf.writeResourceLocation(snapshot.background());
         ComponentSerialization.STREAM_CODEC.encode(buf, snapshot.title());
         buf.writeBoolean(snapshot.showTitle());
         buf.writeBoolean(snapshot.searchVisible());
@@ -134,7 +134,7 @@ public final class ReplayCreativeScreen {
         if (!buf.readBoolean()) {
             return Snapshot.EMPTY;
         }
-        Identifier background = buf.readIdentifier();
+        ResourceLocation background = buf.readResourceLocation();
         Component title = ComponentSerialization.STREAM_CODEC.decode(buf);
         boolean showTitle = buf.readBoolean();
         boolean searchVisible = buf.readBoolean();
@@ -176,13 +176,13 @@ public final class ReplayCreativeScreen {
         return id == entityId ? snapshot : Snapshot.EMPTY;
     }
 
-    private static final Identifier SCROLLER = Identifier.withDefaultNamespace("container/creative_inventory/scroller");
-    private static final Identifier SCROLLER_DISABLED = Identifier.withDefaultNamespace("container/creative_inventory/scroller_disabled");
+    private static final ResourceLocation SCROLLER = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller");
+    private static final ResourceLocation SCROLLER_DISABLED = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller_disabled");
     private static final int LABEL_COLOR = 0xFF404040;
 
-    private static Identifier tabSprite(boolean top, boolean selected, int column) {
+    private static ResourceLocation tabSprite(boolean top, boolean selected, int column) {
         int number = Math.max(0, Math.min(column, 6)) + 1;
-        return Identifier.withDefaultNamespace("container/creative_inventory/tab_" + (top ? "top" : "bottom")
+        return ResourceLocation.withDefaultNamespace("container/creative_inventory/tab_" + (top ? "top" : "bottom")
             + "_" + (selected ? "selected" : "unselected") + "_" + number);
     }
 

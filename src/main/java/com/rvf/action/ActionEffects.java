@@ -7,7 +7,7 @@ import com.moulberry.flashback.playback.ReplayPlayer;
 import com.moulberry.flashback.playback.ReplayServer;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffectInstance;
 
 import java.util.ArrayList;
@@ -15,13 +15,13 @@ import java.util.List;
 
 public class ActionEffects implements Action {
 
-    private static final Identifier NAME = Flashback.createIdentifier("action/effects");
+    private static final ResourceLocation NAME = Flashback.createResourceLocation("action/effects");
     public static final ActionEffects INSTANCE = new ActionEffects();
     private ActionEffects() {
     }
 
     @Override
-    public Identifier name() {
+    public ResourceLocation name() {
         return NAME;
     }
 

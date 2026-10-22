@@ -7,7 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -23,18 +23,18 @@ public final class ReplayInventoryOverlay {
 
     private static final long TICK_NANOS = 50_000_000L;
 
-    private static final Identifier INVENTORY_TEX = Identifier.withDefaultNamespace("textures/gui/container/inventory.png");
-    private static final Identifier GENERIC_54_TEX = Identifier.withDefaultNamespace("textures/gui/container/generic_54.png");
-    private static final Identifier CURSOR_TEX = Identifier.fromNamespaceAndPath("rvf", "textures/gui/replay_cursor.png");
+    private static final ResourceLocation INVENTORY_TEX = ResourceLocation.withDefaultNamespace("textures/gui/container/inventory.png");
+    private static final ResourceLocation GENERIC_54_TEX = ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
+    private static final ResourceLocation CURSOR_TEX = ResourceLocation.fromNamespaceAndPath("rvf", "textures/gui/replay_cursor.png");
     private static final int LABEL_COLOR = 0xFF404040;
     // Outlines vanilla shows in empty armor / offhand slots (indexes 5-8 and 45 of the player inventory menu)
-    private static final Identifier[] EMPTY_ARMOR_ICONS = {
-        Identifier.withDefaultNamespace("container/slot/helmet"),
-        Identifier.withDefaultNamespace("container/slot/chestplate"),
-        Identifier.withDefaultNamespace("container/slot/leggings"),
-        Identifier.withDefaultNamespace("container/slot/boots")
+    private static final ResourceLocation[] EMPTY_ARMOR_ICONS = {
+        ResourceLocation.withDefaultNamespace("container/slot/helmet"),
+        ResourceLocation.withDefaultNamespace("container/slot/chestplate"),
+        ResourceLocation.withDefaultNamespace("container/slot/leggings"),
+        ResourceLocation.withDefaultNamespace("container/slot/boots")
     };
-    private static final Identifier EMPTY_SHIELD_ICON = Identifier.withDefaultNamespace("container/slot/shield");
+    private static final ResourceLocation EMPTY_SHIELD_ICON = ResourceLocation.withDefaultNamespace("container/slot/shield");
 
     private static int entityId = -1;
     private static InventoryScreenState state = InventoryScreenState.CLOSED;
@@ -130,7 +130,7 @@ public final class ReplayInventoryOverlay {
         }
 
         // Outlines in empty armor slots and the empty offhand slot, like vanilla
-        if (playerInv && textured) {
+        if ((playerInv && textured) || (isCreative && creative.inventoryTab())) {
             for (int i = 0; i < EMPTY_ARMOR_ICONS.length; i++) {
                 int index = 5 + i;
                 if (index < s.slots().size() && s.slots().get(index).item().isEmpty()) {
@@ -187,7 +187,7 @@ public final class ReplayInventoryOverlay {
 
     /** Draws the vanilla texture for this container if we know it. Returns false for unknown/modded screens. */
     private static boolean drawVanillaBackground(GuiGraphics g, InventoryScreenState s, int left, int top) {
-        Identifier type = s.menuType();
+        ResourceLocation type = s.menuType();
         if (type == null) {
             if (isPlayerInventory(s)) {
                 g.blit(RenderPipelines.GUI_TEXTURED, INVENTORY_TEX, left, top, 0f, 0f, 176, 166, 256, 256);

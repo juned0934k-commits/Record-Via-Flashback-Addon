@@ -11,7 +11,7 @@ import java.util.List;
 
 /** The active potion effects of the recorded player. */
 public record FlashbackRemoteEffects(int entityId, List<MobEffectInstance> effects) implements CustomPacketPayload {
-    public static final Type<FlashbackRemoteEffects> TYPE = new Type<>(Flashback.createIdentifier("remote_effects"));
+    public static final Type<FlashbackRemoteEffects> TYPE = new Type<>(Flashback.createResourceLocation("remote_effects"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FlashbackRemoteEffects> STREAM_CODEC = StreamCodec.of(
         (buf, payload) -> {

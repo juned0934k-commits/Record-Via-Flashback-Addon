@@ -8,7 +8,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -27,7 +27,7 @@ import java.util.List;
  * <p>
  * A state with {@code open == false} means "no container screen is open".
  */
-public record InventoryScreenState(boolean open, @Nullable Identifier menuType, Component title,
+public record InventoryScreenState(boolean open, @Nullable ResourceLocation menuType, Component title,
                                    int imageWidth, int imageHeight,
                                    List<SlotEntry> slots, ItemStack carried,
                                    float mouseX, float mouseY) {
@@ -47,7 +47,7 @@ public record InventoryScreenState(boolean open, @Nullable Identifier menuType, 
 
         AbstractContainerMenu menu = screen.getMenu();
 
-        Identifier menuTypeKey = null;
+        ResourceLocation menuTypeKey = null;
         try {
             MenuType<?> type = menu.getType(); // throws for the player's own InventoryMenu
             menuTypeKey = BuiltInRegistries.MENU.getKey(type);
@@ -98,7 +98,7 @@ public record InventoryScreenState(boolean open, @Nullable Identifier menuType, 
         if (!this.open) return;
 
         buf.writeBoolean(this.menuType != null);
-        if (this.menuType != null) buf.writeIdentifier(this.menuType);
+        if (this.menuType != null) buf.writeResourceLocation(this.menuType);
         ComponentSerialization.STREAM_CODEC.encode(buf, this.title);
         buf.writeVarInt(this.imageWidth);
         buf.writeVarInt(this.imageHeight);
@@ -117,7 +117,7 @@ public record InventoryScreenState(boolean open, @Nullable Identifier menuType, 
     public static InventoryScreenState decode(RegistryFriendlyByteBuf buf) {
         if (!buf.readBoolean()) return CLOSED;
 
-        Identifier menuType = buf.readBoolean() ? buf.readIdentifier() : null;
+        ResourceLocation menuType = buf.readBoolean() ? buf.readResourceLocation() : null;
         Component title = ComponentSerialization.STREAM_CODEC.decode(buf);
         int imageWidth = buf.readVarInt();
         int imageHeight = buf.readVarInt();
