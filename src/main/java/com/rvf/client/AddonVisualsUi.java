@@ -31,6 +31,10 @@ public final class AddonVisualsUi {
             config.showChatTyping = !config.showChatTyping;
             changed = true;
         }
+        if (ImGui.checkbox("Voice##AddonVoice", config.showVoice)) {
+            config.showVoice = !config.showVoice;
+            changed = true;
+        }
         if (ImGui.checkbox("Auto Perspective##AddonAutoPerspective", config.autoPerspective)) {
             config.autoPerspective = !config.autoPerspective;
             changed = true;

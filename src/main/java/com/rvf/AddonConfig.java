@@ -22,11 +22,15 @@ public class AddonConfig {
     public boolean recordEffects = true;
     public boolean recordSpyglass = true;
     public boolean recordChatTyping = true;
+    public boolean recordVoice = false;
+    public String micDevice = "";
+    public float voiceThresholdDb = -40f;
 
     public boolean showInventory = true;
     public boolean showEffects = true;
     public boolean showSpyglass = true;
     public boolean showChatTyping = true;
+    public boolean showVoice = true;
     public boolean autoPerspective = true;
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
