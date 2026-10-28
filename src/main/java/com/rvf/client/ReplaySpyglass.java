@@ -12,6 +12,7 @@ public final class ReplaySpyglass {
 
     private static int entityId = -1;
     private static boolean scoping = false;
+    private static boolean hasData = false;
 
     private static float smoothedScale = 1.0f;
     private static long lastNanos = 0;
@@ -19,11 +20,24 @@ public final class ReplaySpyglass {
     public static void set(int id, boolean isScoping) {
         entityId = id;
         scoping = isScoping;
+        hasData = true;
     }
 
     public static void clear() {
+        hasData = false;
         entityId = -1;
         scoping = false;
+    }
+
+    /**
+     * Whether the scope should be shown for this player. Only when the recording contains spyglass data from this addon
+     * (so turning "Spyglass" off while recording really removes it). The vanilla state is only used for other players.
+     */
+    public static boolean shouldScope(int id, boolean vanillaScoping) {
+        if (!hasData) {
+            return false;
+        }
+        return isScoping(id) || (id != entityId && vanillaScoping);
     }
 
     /** True if the recording says the given entity is using a spyglass right now. */
@@ -48,7 +62,7 @@ public final class ReplaySpyglass {
         if (!visible()) {
             return false;
         }
-        return isScoping(player.getId()) || player.isScoping();
+        return shouldScope(player.getId(), player.isScoping());
     }
 
     /**

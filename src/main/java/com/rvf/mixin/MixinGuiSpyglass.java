@@ -31,7 +31,7 @@ public abstract class MixinGuiSpyglass {
                 if (!ReplaySpyglass.visible()) {
                     return false;
                 }
-                return ReplaySpyglass.isScoping(player.getId()) || player.isScoping();
+                return ReplaySpyglass.shouldScope(player.getId(), player.isScoping());
             }
         }
         return original.call(instance);

@@ -14,6 +14,13 @@ public abstract class MixinVisualsWindow {
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Limgui/moulberry90/ImGui;end()V"), remap = false, require = 0)
     private static void rvf$addonCheckboxes(CallbackInfo ci) {
         AddonVisualsUi.render();
+        com.rvf.client.AudioWindow.rememberVisualsDock();
+    }
+
+    /** Draws the "RVF Audio" window right after the Visuals window. */
+    @Inject(method = "render", at = @At("TAIL"), remap = false, require = 0)
+    private static void rvf$audioWindow(CallbackInfo ci) {
+        com.rvf.client.AudioWindow.render();
     }
 
 }
