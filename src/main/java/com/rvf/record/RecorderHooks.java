@@ -44,6 +44,7 @@ public final class RecorderHooks {
     private static boolean errorLogged = false;
 
     public static void reset() {
+        com.rvf.voice.VoiceCapture.reset();
         lastInventory = null;
         lastInventoryExtrasKey = null;
         lastCreativeKey = null;
@@ -54,15 +55,15 @@ public final class RecorderHooks {
         lastChatSuggestionsKey = null;
     }
 
-    public static void tick(AsyncReplaySaver saver) {
-        write(saver, false);
+    public static void tick(AsyncReplaySaver saver, int replayTick) {
+        write(saver, false, replayTick);
     }
 
-    public static void snapshot(AsyncReplaySaver saver) {
-        write(saver, true);
+    public static void snapshot(AsyncReplaySaver saver, int replayTick) {
+        write(saver, true, replayTick);
     }
 
-    private static void write(AsyncReplaySaver saver, boolean force) {
+    private static void write(AsyncReplaySaver saver, boolean force, int replayTick) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player == null) {
@@ -88,6 +89,9 @@ public final class RecorderHooks {
             if (config.recordChatTyping) {
                 writeChatTyping(saver, minecraft, force);
                 writeChatSuggestions(saver, minecraft, force);
+            }
+            if (config.recordVoice) {
+                com.rvf.voice.VoiceCapture.tick(saver, replayTick);
             }
         } catch (RuntimeException e) {
             if (!errorLogged) {

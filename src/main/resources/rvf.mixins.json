@@ -16,6 +16,9 @@
     "MixinRecipeBookComponentAccessor",
     "MixinRecorder",
     "MixinSuggestionsListAccessor",
+    "MixinReplayExporter",
+    "MixinReplayServerLoudness",
+    "MixinTimelineLoudness",
     "MixinVisualsWindow"
   ],
   "injectors": {
