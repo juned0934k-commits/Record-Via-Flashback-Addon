@@ -39,6 +39,8 @@ public class RVF implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         AddonConfig.load();
+        com.rvf.client.RvfCommand.register();
+        com.rvf.client.MicIndicator.register();
 
         // Recorded actions (same names as the original patched Flashback, so old recordings keep working)
         ActionRegistry.register(ActionInventoryScreen.INSTANCE);
@@ -49,6 +51,7 @@ public class RVF implements ClientModInitializer {
         ActionRegistry.register(ActionSpyglass.INSTANCE);
         ActionRegistry.register(ActionChatTyping.INSTANCE);
         ActionRegistry.register(ActionChatSuggestions.INSTANCE);
+        ActionRegistry.register(com.rvf.action.ActionVoice.INSTANCE);
 
         // Server -> replay viewer payloads
         PayloadTypeRegistry.playS2C().register(FlashbackRemoteInventoryScreen.TYPE, FlashbackRemoteInventoryScreen.STREAM_CODEC);
@@ -59,6 +62,7 @@ public class RVF implements ClientModInitializer {
         PayloadTypeRegistry.playS2C().register(FlashbackRemoteSpyglass.TYPE, FlashbackRemoteSpyglass.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(FlashbackRemoteChatTyping.TYPE, FlashbackRemoteChatTyping.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(FlashbackRemoteChatSuggestions.TYPE, FlashbackRemoteChatSuggestions.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(com.rvf.packet.FlashbackRemoteVoice.TYPE, com.rvf.packet.FlashbackRemoteVoice.STREAM_CODEC);
 
         // Receivers
         ClientPlayNetworking.registerGlobalReceiver(FlashbackRemoteInventoryScreen.TYPE, (payload, context) -> {
@@ -101,6 +105,13 @@ public class RVF implements ClientModInitializer {
                 ReplayChatSuggestions.set(payload.entityId(), payload.snapshot());
             }
         });
+
+        ClientPlayNetworking.registerGlobalReceiver(com.rvf.packet.FlashbackRemoteVoice.TYPE, (payload, context) -> {
+            if (Flashback.isInReplay() && AddonConfig.get().showVoice) {
+                com.rvf.voice.VoicePlayer.play(payload.sampleRate(), payload.pcm());
+            }
+        });
+        com.rvf.voice.VoiceCapture.logDevices();
 
         LOGGER.info("Record Via Flashback loaded");
     }
