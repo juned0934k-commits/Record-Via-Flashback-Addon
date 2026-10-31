@@ -29,7 +29,11 @@ public class ActionVoice implements Action {
         byte[] pcm = buf.readByteArray();
 
         // Like Flashback's own voice chat: no sound while paused, seeking or exporting
-        if (replayServer.fastForwarding || replayServer.replayPaused || Flashback.EXPORT_JOB != null) {
+        if (Flashback.EXPORT_JOB != null) {
+            com.rvf.voice.ExportVoice.add(sampleRate, pcm);
+            return;
+        }
+        if (replayServer.fastForwarding || replayServer.replayPaused) {
             return;
         }
 
