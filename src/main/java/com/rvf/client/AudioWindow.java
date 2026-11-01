@@ -1,6 +1,8 @@
 package com.rvf.client;
 
 import com.rvf.AddonConfig;
+import com.rvf.voice.SystemAudioCapture;
+import com.rvf.voice.WasapiLoopback;
 import com.rvf.voice.VoiceCapture;
 import com.moulberry.flashback.editor.ui.ImGuiHelper;
 import imgui.moulberry90.ImGui;
@@ -24,6 +26,7 @@ public final class AudioWindow {
     private static int visualsDockId = 0;
     private static List<String> devices = null;
     private static boolean testMic = false;
+    private static boolean testSystem = false;
     private static boolean dirty = false;
     private static long lastChangeNanos = 0L;
 
@@ -81,7 +84,21 @@ public final class AudioWindow {
                 changed = true;
             }
 
-            ImGuiHelper.separatorWithText("Test");
+            FLOAT_BUFFER[0] = config.voiceVolume;
+            if (ImGui.sliderFloat("Volume##RvfVoiceVolume", FLOAT_BUFFER, 0.0f, 4.0f, "%.2f")) {
+                config.voiceVolume = FLOAT_BUFFER[0];
+                changed = true;
+            }
+            FLOAT_BUFFER[0] = config.voiceBassDb;
+            if (ImGui.sliderFloat("Bass boost (dB)##RvfVoiceBass", FLOAT_BUFFER, 0.0f, 12.0f, "%.1f")) {
+                config.voiceBassDb = FLOAT_BUFFER[0];
+                changed = true;
+            }
+            ImGui.textUnformatted("Volume and bass apply when you watch the replay or export a video.");
+
+            changed |= renderSystemAudio(config);
+
+            ImGuiHelper.separatorWithText("Test microphone");
 
             if (ImGui.checkbox("Test microphone##RvfTestMic", testMic)) {
                 testMic = !testMic;
@@ -108,6 +125,73 @@ public final class AudioWindow {
             dirty = false;
             AddonConfig.save();
         }
+    }
+
+    /** The "Discord / system audio" section. Returns true if a setting was changed. */
+    private static boolean renderSystemAudio(AddonConfig config) {
+        boolean changed = false;
+        ImGuiHelper.separatorWithText("Discord / system audio");
+
+        if (ImGui.checkbox("Record Discord / system audio##RvfRecordSystem", config.recordSystemAudio)) {
+            config.recordSystemAudio = !config.recordSystemAudio;
+            changed = true;
+        }
+        ImGui.textUnformatted("Choose \"Default speakers (loopback)\" to record what your speakers play. It records everything, game sound too.");
+        ImGui.textUnformatted("Use headphones, so your microphone does not pick up Discord a second time.");
+
+        boolean none = config.systemDevice == null || config.systemDevice.isBlank();
+        String current = none ? "(none chosen)" : config.systemDevice;
+        if (ImGui.beginCombo("Input##RvfSystemInput", current)) {
+            if (ImGui.selectable(WasapiLoopback.DEVICE_NAME + "##RvfSystemLoopback", WasapiLoopback.DEVICE_NAME.equals(config.systemDevice))) {
+                config.systemDevice = WasapiLoopback.DEVICE_NAME;
+                changed = true;
+            }
+            if (ImGui.selectable("(none)##RvfSystemNone", none)) {
+                config.systemDevice = "";
+                changed = true;
+            }
+            List<String> names = devices();
+            for (int i = 0; i < names.size(); i++) {
+                String name = names.get(i);
+                if (ImGui.selectable(name + "##RvfSystemInput" + i, name.equals(config.systemDevice))) {
+                    config.systemDevice = name;
+                    changed = true;
+                }
+            }
+            ImGui.endCombo();
+        }
+        ImGui.sameLine();
+        if (ImGui.button("Refresh##RvfSystemRefresh")) {
+            devices = null;
+        }
+
+        FLOAT_BUFFER[0] = config.systemThresholdDb;
+        if (ImGui.sliderFloat("Threshold (dB)##RvfSystemThreshold", FLOAT_BUFFER, -80.0f, 0.0f, "%.0f")) {
+            config.systemThresholdDb = FLOAT_BUFFER[0];
+            changed = true;
+        }
+
+        FLOAT_BUFFER[0] = config.systemVolume;
+        if (ImGui.sliderFloat("Volume##RvfSystemVolume", FLOAT_BUFFER, 0.0f, 4.0f, "%.2f")) {
+            config.systemVolume = FLOAT_BUFFER[0];
+            changed = true;
+        }
+
+        if (ImGui.checkbox("Test input##RvfTestSystem", testSystem)) {
+            testSystem = !testSystem;
+        }
+        if (testSystem) {
+            if (none) {
+                ImGui.textUnformatted("Choose an input first.");
+            } else {
+                SystemAudioCapture.testTick();
+                float db = SystemAudioCapture.currentLevelDb();
+                float fraction = Math.max(0.0f, Math.min(1.0f, (db + 80.0f) / 80.0f));
+                String label = String.format("%.0f dB  %s", db, db >= config.systemThresholdDb ? "(recorded)" : "(below threshold)");
+                ImGui.progressBar(fraction, -1.0f, 0.0f, label);
+            }
+        }
+        return changed;
     }
 
     private static List<String> devices() {
