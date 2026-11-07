@@ -25,6 +25,12 @@ public class AddonConfig {
     public boolean recordVoice = false;
     public String micDevice = "";
     public float voiceThresholdDb = -40f;
+    public float voiceVolume = 1.0f;
+    public float voiceBassDb = 0.0f;
+    public boolean recordSystemAudio = false;
+    public String systemDevice = "";
+    public float systemThresholdDb = -50f;
+    public float systemVolume = 1.0f;
 
     public boolean showInventory = true;
     public boolean showEffects = true;

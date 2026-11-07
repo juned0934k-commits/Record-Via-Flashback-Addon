@@ -11,52 +11,67 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Plays recorded microphone audio while watching a replay. Chunks are queued and written to the sound card
- * on their own thread, so the game never waits for the audio device.
+ * Plays recorded audio while watching a replay. Chunks are queued and written to the sound card on their own
+ * thread, so the game never waits for the audio device.
+ * There are two independent players: VOICE (the recorded microphone) and SYSTEM (recorded Discord / system audio),
+ * so both can play at the same time.
  */
 public final class VoicePlayer {
 
-    private VoicePlayer() {}
+    public static final VoicePlayer VOICE = new VoicePlayer("RVF-VoicePlayer");
+    public static final VoicePlayer SYSTEM = new VoicePlayer("RVF-SystemPlayer");
 
     private record Chunk(int sampleRate, byte[] pcm) {}
 
     private static final int MAX_QUEUED_CHUNKS = 400;
     private static final int PREBUFFER_MS = 80;
 
-    private static final BlockingQueue<Chunk> QUEUE = new LinkedBlockingQueue<>();
-    private static Thread thread = null;
-    private static boolean errorLogged = false;
+    private final String threadName;
+    private final BlockingQueue<Chunk> queue = new LinkedBlockingQueue<>();
+    private Thread thread = null;
+    private boolean errorLogged = false;
 
+    private VoicePlayer(String threadName) {
+        this.threadName = threadName;
+    }
+
+    /** Plays a microphone chunk (kept so existing callers keep working). */
     public static void play(int sampleRate, byte[] pcm) {
+        VOICE.playChunk(sampleRate, pcm);
+    }
+
+    /** Drops everything that is still queued, on both players. */
+    public static void clear() {
+        VOICE.queue.clear();
+        SYSTEM.queue.clear();
+    }
+
+    public void playChunk(int sampleRate, byte[] pcm) {
         if (pcm.length < 2 || sampleRate < 8000 || sampleRate > 96000) {
             return;
         }
         ensureThread();
-        if (QUEUE.size() >= MAX_QUEUED_CHUNKS) {
+        if (this.queue.size() >= MAX_QUEUED_CHUNKS) {
             return;
         }
-        QUEUE.add(new Chunk(sampleRate, pcm));
+        this.queue.add(new Chunk(sampleRate, pcm));
     }
 
-    public static void clear() {
-        QUEUE.clear();
-    }
-
-    private static synchronized void ensureThread() {
-        if (thread != null && thread.isAlive()) {
+    private synchronized void ensureThread() {
+        if (this.thread != null && this.thread.isAlive()) {
             return;
         }
-        thread = new Thread(VoicePlayer::run, "RVF-VoicePlayer");
-        thread.setDaemon(true);
-        thread.start();
+        this.thread = new Thread(this::run, this.threadName);
+        this.thread.setDaemon(true);
+        this.thread.start();
     }
 
-    private static void run() {
+    private void run() {
         SourceDataLine line = null;
         int lineRate = 0;
         try {
             while (true) {
-                Chunk chunk = QUEUE.poll(5, TimeUnit.SECONDS);
+                Chunk chunk = this.queue.poll(5, TimeUnit.SECONDS);
                 if (chunk == null) {
                     closeLine(line);
                     line = null;
@@ -81,16 +96,16 @@ public final class VoicePlayer {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (RuntimeException e) {
-            if (!errorLogged) {
-                errorLogged = true;
-                RVF.LOGGER.error("Voice playback stopped because of an error", e);
+            if (!this.errorLogged) {
+                this.errorLogged = true;
+                RVF.LOGGER.error("Audio playback stopped because of an error", e);
             }
         } finally {
             closeLine(line);
         }
     }
 
-    private static SourceDataLine openLine(int sampleRate) {
+    private SourceDataLine openLine(int sampleRate) {
         try {
             AudioFormat format = new AudioFormat(sampleRate, 16, 1, true, false);
             SourceDataLine line = AudioSystem.getSourceDataLine(format);
@@ -98,9 +113,9 @@ public final class VoicePlayer {
             line.start();
             return line;
         } catch (LineUnavailableException | IllegalArgumentException e) {
-            if (!errorLogged) {
-                errorLogged = true;
-                RVF.LOGGER.error("Could not open an audio output for the recorded voice", e);
+            if (!this.errorLogged) {
+                this.errorLogged = true;
+                RVF.LOGGER.error("Could not open an audio output for the recorded audio", e);
             }
             return null;
         }
