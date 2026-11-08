@@ -45,6 +45,7 @@ public final class RecorderHooks {
 
     public static void reset() {
         com.rvf.voice.VoiceCapture.reset();
+        com.rvf.voice.SystemAudioCapture.reset();
         lastInventory = null;
         lastInventoryExtrasKey = null;
         lastCreativeKey = null;
@@ -92,6 +93,9 @@ public final class RecorderHooks {
             }
             if (config.recordVoice) {
                 com.rvf.voice.VoiceCapture.tick(saver, replayTick);
+            }
+            if (config.recordSystemAudio) {
+                com.rvf.voice.SystemAudioCapture.tick(saver);
             }
         } catch (RuntimeException e) {
             if (!errorLogged) {

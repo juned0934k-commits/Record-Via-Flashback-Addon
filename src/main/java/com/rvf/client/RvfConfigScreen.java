@@ -40,6 +40,8 @@ public class RvfConfigScreen extends Screen {
         toggle(x, y, w, "Camera perspective", config.recordPerspective, v -> config.recordPerspective = v);
         y += 24;
         toggle(x, y, w, "Microphone voice", config.recordVoice, v -> config.recordVoice = v);
+        y += 24;
+        toggle(x, y, w, "Discord / system audio", config.recordSystemAudio, v -> config.recordSystemAudio = v);
         y += 30;
 
         this.addRenderableWidget(new StringWidget(x, y, w, 9, Component.literal("Applies to new recordings."), this.font));

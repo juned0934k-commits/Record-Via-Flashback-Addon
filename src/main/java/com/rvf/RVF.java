@@ -52,6 +52,7 @@ public class RVF implements ClientModInitializer {
         ActionRegistry.register(ActionChatTyping.INSTANCE);
         ActionRegistry.register(ActionChatSuggestions.INSTANCE);
         ActionRegistry.register(com.rvf.action.ActionVoice.INSTANCE);
+        ActionRegistry.register(com.rvf.action.ActionSystemAudio.INSTANCE);
 
         // Server -> replay viewer payloads
         PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteInventoryScreen.TYPE, FlashbackRemoteInventoryScreen.STREAM_CODEC);
@@ -63,6 +64,7 @@ public class RVF implements ClientModInitializer {
         PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteChatTyping.TYPE, FlashbackRemoteChatTyping.STREAM_CODEC);
         PayloadTypeRegistry.clientboundPlay().register(FlashbackRemoteChatSuggestions.TYPE, FlashbackRemoteChatSuggestions.STREAM_CODEC);
         PayloadTypeRegistry.clientboundPlay().register(com.rvf.packet.FlashbackRemoteVoice.TYPE, com.rvf.packet.FlashbackRemoteVoice.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(com.rvf.packet.FlashbackRemoteSystemAudio.TYPE, com.rvf.packet.FlashbackRemoteSystemAudio.STREAM_CODEC);
 
         // Receivers
         ClientPlayNetworking.registerGlobalReceiver(FlashbackRemoteInventoryScreen.TYPE, (payload, context) -> {
@@ -108,7 +110,12 @@ public class RVF implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(com.rvf.packet.FlashbackRemoteVoice.TYPE, (payload, context) -> {
             if (Flashback.isInReplay() && AddonConfig.get().showVoice) {
-                com.rvf.voice.VoicePlayer.play(payload.sampleRate(), payload.pcm());
+                com.rvf.voice.VoicePlayer.play(payload.sampleRate(), com.rvf.voice.VoiceFx.micPlayback(payload.sampleRate(), payload.pcm()));
+            }
+        });
+        ClientPlayNetworking.registerGlobalReceiver(com.rvf.packet.FlashbackRemoteSystemAudio.TYPE, (payload, context) -> {
+            if (Flashback.isInReplay() && AddonConfig.get().showVoice) {
+                com.rvf.voice.VoicePlayer.SYSTEM.playChunk(payload.sampleRate(), com.rvf.voice.ExportVoice.scale(payload.pcm(), AddonConfig.get().systemVolume));
             }
         });
         com.rvf.voice.VoiceCapture.logDevices();
